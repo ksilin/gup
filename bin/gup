@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
+
+require 'main'
+require 'optparse'
+require 'yaml'
+require 'pp'
+require 'find'
+
+def find(dir = Dir.pwd, recursive = false, verbose = false)
+  $stderr.puts "working in : #{dir}" if verbose
+
+  Find.find(dir).select do |f|
+    prune(dir, f, recursive)
+    is_git_repo?(f)
+  end
+end
+
+def prune(dir, f, recursive = false)
+  Find.prune if do_not_traverse(dir, f, recursive)
+end
+
+def do_not_traverse(dir, file, recursive = false)
+  !recursive && File.directory?(file) && file != dir
+end
+
+Gup::Main.update_all
